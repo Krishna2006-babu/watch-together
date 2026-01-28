@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Watch Together</title>
+</head>
+<body>
+  <h2>Module 6 Test</h2>
+
+  <input id="roomInput" placeholder="Room ID" />
+  <button onclick="joinRoom()">Join Room</button>
+  <button onclick="sendHello()">Send Hello</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function joinRoom() {
+      const roomId = document.getElementById("roomInput").value;
+      socket.emit("join-room", roomId);
+    }
+
+    function sendHello() {
+      socket.emit("hello", "Hello from someone!");
+    }
+
+    socket.on("hello", (msg) => {
+      alert(msg);
+    });
+  </script>
+</body>
+</html>
