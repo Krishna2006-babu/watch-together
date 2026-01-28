@@ -4,27 +4,58 @@
   <title>Watch Together</title>
 </head>
 <body>
-  <h2>Module 6 Test</h2>
+  <h2>Module 8 — Video Sync</h2>
 
   <input id="roomInput" placeholder="Room ID" />
   <button onclick="joinRoom()">Join Room</button>
-  <button onclick="sendHello()">Send Hello</button>
+
+  <br /><br />
+
+  <video
+    id="video"
+    width="600"
+    controls
+    src="https://www.w3schools.com/html/mov_bbb.mp4"
+  ></video>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+    const video = document.getElementById("video");
+
+    let isHost = false;
 
     function joinRoom() {
       const roomId = document.getElementById("roomInput").value;
       socket.emit("join-room", roomId);
     }
 
-    function sendHello() {
-      socket.emit("hello", "Hello from someone!");
-    }
+    // Ask server if this user is host
+    socket.on("host", () => {
+      isHost = true;
+      console.log("I am host");
+    });
 
-    socket.on("hello", (msg) => {
-      alert(msg);
+    // HOST actions → send to server
+    video.addEventListener("play", () => {
+      if (isHost) {
+        socket.emit("play-video");
+      }
+    });
+
+    video.addEventListener("pause", () => {
+      if (isHost) {
+        socket.emit("pause-video");
+      }
+    });
+
+    // LISTENER actions ← from server
+    socket.on("play-video", () => {
+      video.play();
+    });
+
+    socket.on("pause-video", () => {
+      video.pause();
     });
   </script>
 </body>

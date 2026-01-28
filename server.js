@@ -16,12 +16,27 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomId) => {
     socket.join(roomId);
     socket.roomId = roomId;
+
+    const room = io.sockets.adapter.rooms.get(roomId);
+
+    // First user becomes host
+    if (room.size === 1) {
+      socket.isHost = true;
+      socket.emit("host");
+      console.log("Host assigned:", socket.id);
+    }
+
     console.log(`${socket.id} joined room ${roomId}`);
   });
 
-  socket.on("hello", (msg) => {
-    if (!socket.roomId) return;
-    io.to(socket.roomId).emit("hello", msg);
+  socket.on("play-video", () => {
+    if (!socket.isHost) return;
+    io.to(socket.roomId).emit("play-video");
+  });
+
+  socket.on("pause-video", () => {
+    if (!socket.isHost) return;
+    io.to(socket.roomId).emit("pause-video");
   });
 
   socket.on("disconnect", () => {
@@ -29,6 +44,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// 🔥 THIS WAS MISSING
 server.listen(3000, () => {
   console.log("Server listening on port 3000");
 });
